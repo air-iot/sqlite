@@ -413,3 +413,11 @@ func TestGetColumns(t *testing.T) {
 		})
 	}
 }
+
+func TestTableName(t *testing.T) {
+	// [\w\d\u4e00-\u9fa5!@$\-_:()]+
+	createSql := "CREATE TABLE `flowtest` (`id` text NOT NULL,`creator` text,`connectTime` datetime,`createTime_default` datetime, `number-7E71` integer, `text-7F59` text,PRIMARY KEY (`id`))"
+	//createSql := "CREATE TABLE `姓名` (`id` text NOT NULL,`creator` text,`connectTime` datetime,`createTime_default` datetime,PRIMARY KEY (`id`))"
+	sections := tableRegexp.FindStringSubmatch(createSql)
+	t.Log(sections)
+}
