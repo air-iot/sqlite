@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
+	"regexp"
 	"testing"
 
 	"gorm.io/gorm/migrator"
@@ -420,4 +422,31 @@ func TestTableName(t *testing.T) {
 	//createSql := "CREATE TABLE `姓名` (`id` text NOT NULL,`creator` text,`connectTime` datetime,`createTime_default` datetime,PRIMARY KEY (`id`))"
 	sections := tableRegexp.FindStringSubmatch(createSql)
 	t.Log(sections)
+}
+
+func TestColumnName(t *testing.T) {
+	f := "`number-8574` integer"
+	matches := columnRegexp.FindStringSubmatch(f)
+	t.Log(matches)
+}
+
+func TestReplace(t *testing.T) {
+	dst := "我的哈--_哈哈哈全有人__temp"
+	src := "我的哈--_哈哈哈全有人"
+	head := "CREATE TABLE `我的哈--_哈哈哈全有人`"
+	//dst := "abc__temp"
+	//src := "abc"
+	//head := "CREATE TABLE `abc`"
+	//tpl := "\\s*('|`|\")?" + regexp.QuoteMeta(src) + "('|`|\")?\\s*"
+	tpl := fmt.Sprintf("[`'\"]?%s[`'\"]?", regexp.QuoteMeta(src))
+
+	tableReg, err := regexp.Compile(tpl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replaced := tableReg.ReplaceAllString(head, fmt.Sprintf(" `%s` ", dst))
+	if replaced == head {
+		t.Fatal(fmt.Errorf("failed to look up tablename `%s` from DDL head '%s'", src, head))
+	}
+	t.Log(replaced)
 }
